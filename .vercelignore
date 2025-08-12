@@ -5,3 +5,5 @@ dist
 .trae
 .vite
 .log
+*.log
+package-lock.json
