@@ -198,8 +198,7 @@ export default function Home() {
               transition={{ delay: 0.3 + index * 0.1 }}
             >
               <Card
-                hover
-                className={`bg-gradient-to-br ${item.color} border-white/30 cursor-pointer group`}
+                className={`bg-gradient-to-br ${item.color} border-white/30 cursor-pointer group hover:shadow-xl transition-shadow duration-200`}
                 onClick={() => navigate(item.path)}
               >
                 <CardContent className="text-center py-8">

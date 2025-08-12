@@ -45,19 +45,50 @@ export default function Trends() {
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
   const [chartType, setChartType] = useState<ChartType>('line');
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
     const loadData = async () => {
-      await initializeMockData();
-      setIsLoading(false);
+      try {
+        setError(null);
+        await initializeMockData();
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Failed to load data:', err);
+        setError('数据加载失败，请刷新页面重试');
+        setIsLoading(false);
+      }
     };
     loadData();
   }, [initializeMockData]);
   
   // 生成趋势数据
-  const trendData = generateTrendData(records, 30);
-  const emotionStats = generateEmotionStats(records);
-  const wordCloudData = extractWordCloudData(records);
+  const trendData = React.useMemo(() => {
+    try {
+      return generateTrendData(records, timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : timeRange === '90d' ? 90 : records.length);
+    } catch (err) {
+      console.error('Failed to generate trend data:', err);
+      return [];
+    }
+  }, [records, timeRange]);
+  
+  const emotionStats = React.useMemo(() => {
+    try {
+      return generateEmotionStats(records);
+    } catch (err) {
+      console.error('Failed to generate emotion stats:', err);
+      return [];
+    }
+  }, [records]);
+  
+  const wordCloudData = React.useMemo(() => {
+    try {
+      return extractWordCloudData(records);
+    } catch (err) {
+      console.error('Failed to generate word cloud data:', err);
+      return [];
+    }
+  }, [records]);
   
   // 计算统计指标
   const totalRecords = records.length;
@@ -85,6 +116,66 @@ export default function Trends() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {[...Array(2)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 p-4">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/')}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>返回</span>
+            </Button>
+          </div>
+          <Card>
+            <CardContent className="p-8 text-center">
+              <div className="text-red-500 text-6xl mb-4">⚠️</div>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">加载失败</h2>
+              <p className="text-gray-600 mb-4">{error}</p>
+              <Button onClick={() => window.location.reload()}>刷新页面</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+  
+  // 如果没有数据，显示空状态
+  if (records.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 p-4">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div className="flex items-center justify-between">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/')}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>返回</span>
+            </Button>
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-gray-800">趋势分析</h1>
+              <p className="text-gray-600 text-sm">了解你的情绪变化规律</p>
+            </div>
+            <div className="w-24"></div>
+          </div>
+          <Card>
+            <CardContent className="p-8 text-center">
+              <div className="text-gray-400 text-6xl mb-4">📊</div>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">暂无数据</h2>
+              <p className="text-gray-600 mb-4">开始记录你的情绪，来查看趋势分析吧！</p>
+              <Button onClick={() => navigate('/record')}>开始记录</Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -222,109 +313,156 @@ export default function Trends() {
               </CardHeader>
               <CardContent>
                 <div className="h-80">
-                  {chartType === 'line' && (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={trendData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis 
-                          dataKey="date" 
-                          stroke="#666"
-                          fontSize={12}
-                        />
-                        <YAxis 
-                          domain={[0, 10]}
-                          stroke="#666"
-                          fontSize={12}
-                        />
-                        <Tooltip 
-                          contentStyle={{
-                            backgroundColor: 'white',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                          }}
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="emotionValue" 
-                          stroke="#8b5cf6" 
-                          strokeWidth={3}
-                          dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
-                          activeDot={{ r: 6, stroke: '#8b5cf6', strokeWidth: 2 }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
+                  {trendData.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className="text-gray-400 text-4xl mb-2">📈</div>
+                        <p className="text-gray-500">暂无趋势数据</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {chartType === 'line' && (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={trendData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis 
+                              dataKey="date" 
+                              stroke="#666"
+                              fontSize={12}
+                              tickFormatter={(value) => {
+                                const date = new Date(value);
+                                return `${date.getMonth() + 1}/${date.getDate()}`;
+                              }}
+                            />
+                            <YAxis 
+                              domain={[0, 10]}
+                              stroke="#666"
+                              fontSize={12}
+                            />
+                            <Tooltip 
+                              contentStyle={{
+                                backgroundColor: 'white',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                              }}
+                              labelFormatter={(value) => {
+                                const date = new Date(value);
+                                return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+                              }}
+                              formatter={(value: number, name: string) => [
+                                `${value}分`,
+                                '情绪强度'
+                              ]}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="emotionValue" 
+                              stroke="#8b5cf6" 
+                              strokeWidth={3}
+                              dot={{ fill: '#8b5cf6', strokeWidth: 2, r: 4 }}
+                              activeDot={{ r: 6, stroke: '#8b5cf6', strokeWidth: 2 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      )}
+                    </>
                   )}
                   
-                  {chartType === 'area' && (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={trendData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis 
-                          dataKey="date" 
-                          stroke="#666"
-                          fontSize={12}
-                        />
-                        <YAxis 
-                          domain={[0, 10]}
-                          stroke="#666"
-                          fontSize={12}
-                        />
-                        <Tooltip 
-                          contentStyle={{
-                            backgroundColor: 'white',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                          }}
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="emotionValue" 
-                          stroke="#8b5cf6" 
-                          fill="url(#colorGradient)"
-                          strokeWidth={2}
-                        />
-                        <defs>
-                          <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.05}/>
-                          </linearGradient>
-                        </defs>
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  )}
-                  
-                  {chartType === 'bar' && (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={trendData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                        <XAxis 
-                          dataKey="date" 
-                          stroke="#666"
-                          fontSize={12}
-                        />
-                        <YAxis 
-                          domain={[0, 10]}
-                          stroke="#666"
-                          fontSize={12}
-                        />
-                        <Tooltip 
-                          contentStyle={{
-                            backgroundColor: 'white',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                          }}
-                        />
-                        <Bar 
-                          dataKey="emotionValue" 
-                          fill="#8b5cf6"
-                          radius={[4, 4, 0, 0]}
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  )}
+                      {chartType === 'area' && (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={trendData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis 
+                              dataKey="date" 
+                              stroke="#666"
+                              fontSize={12}
+                              tickFormatter={(value) => {
+                                const date = new Date(value);
+                                return `${date.getMonth() + 1}/${date.getDate()}`;
+                              }}
+                            />
+                            <YAxis 
+                              domain={[0, 10]}
+                              stroke="#666"
+                              fontSize={12}
+                            />
+                            <Tooltip 
+                              contentStyle={{
+                                backgroundColor: 'white',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                              }}
+                              labelFormatter={(value) => {
+                                const date = new Date(value);
+                                return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+                              }}
+                              formatter={(value: number, name: string) => [
+                                `${value}分`,
+                                '情绪强度'
+                              ]}
+                            />
+                            <Area 
+                              type="monotone" 
+                              dataKey="emotionValue" 
+                              stroke="#8b5cf6" 
+                              fill="url(#colorGradient)"
+                              strokeWidth={2}
+                            />
+                            <defs>
+                              <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.05}/>
+                              </linearGradient>
+                            </defs>
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      )}
+                      
+                      {chartType === 'bar' && (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={trendData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                            <XAxis 
+                              dataKey="date" 
+                              stroke="#666"
+                              fontSize={12}
+                              tickFormatter={(value) => {
+                                const date = new Date(value);
+                                return `${date.getMonth() + 1}/${date.getDate()}`;
+                              }}
+                            />
+                            <YAxis 
+                              domain={[0, 10]}
+                              stroke="#666"
+                              fontSize={12}
+                            />
+                            <Tooltip 
+                              contentStyle={{
+                                backgroundColor: 'white',
+                                border: '1px solid #e5e7eb',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                              }}
+                              labelFormatter={(value) => {
+                                const date = new Date(value);
+                                return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+                              }}
+                              formatter={(value: number, name: string) => [
+                                `${value}分`,
+                                '情绪强度'
+                              ]}
+                            />
+                            <Bar 
+                              dataKey="emotionValue" 
+                              fill="#8b5cf6"
+                              radius={[4, 4, 0, 0]}
+                            />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      )}
                 </div>
               </CardContent>
             </Card>
@@ -342,40 +480,49 @@ export default function Trends() {
               </CardHeader>
               <CardContent>
                 <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={emotionStats}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={120}
-                        paddingAngle={2}
-                        dataKey="count"
-                        label={({ emotion, percentage }) => `${emotion.name} ${percentage}%`}
-                        labelLine={false}
-                      >
-                        {emotionStats.map((entry, index) => {
-                          const emotionData = EMOTIONS.find(e => e.name === entry.emotion);
-                          return (
-                            <Cell key={`cell-${index}`} fill={emotionData?.color || '#E5E5E5'} />
-                          );
-                        })}
-                      </Pie>
-                      <Tooltip 
-                        contentStyle={{
-                          backgroundColor: 'white',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '8px',
-                          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                        }}
-                        formatter={(value: number, name: string, props: any) => [
-                          `${value} 次 (${props.payload.percentage}%)`,
-                          props.payload.emotion
-                        ]}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  {emotionStats.length === 0 ? (
+                    <div className="flex items-center justify-center h-full">
+                      <div className="text-center">
+                        <div className="text-gray-400 text-4xl mb-2">🥧</div>
+                        <p className="text-gray-500">暂无情绪分布数据</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={emotionStats}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={120}
+                          paddingAngle={2}
+                          dataKey="count"
+                          label={({ emotion, percentage }) => `${emotion} ${percentage}%`}
+                          labelLine={false}
+                        >
+                          {emotionStats.map((entry, index) => {
+                            const emotionData = EMOTIONS.find(e => e.name === entry.emotion);
+                            return (
+                              <Cell key={`cell-${index}`} fill={emotionData?.color || '#E5E5E5'} />
+                            );
+                          })}
+                        </Pie>
+                        <Tooltip 
+                          contentStyle={{
+                            backgroundColor: 'white',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                          }}
+                          formatter={(value: number, name: string, props: any) => [
+                            `${value} 次 (${props.payload.percentage}%)`,
+                            props.payload.emotion
+                          ]}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -396,39 +543,46 @@ export default function Trends() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {emotionStats.map((stat, index) => {
-                    const emotionData = EMOTIONS.find(e => e.name === stat.emotion);
-                    return (
-                      <motion.div
-                        key={stat.emotion}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.1 * index }}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <span className="text-2xl">{emotionData?.icon || '😊'}</span>
-                          <div>
-                            <h4 className="font-medium text-gray-800">
-                              {emotionData?.name || stat.emotion}
-                            </h4>
-                            <p className="text-sm text-gray-600">
-                              出现频率: {stat.percentage}%
-                            </p>
+                  {emotionStats.length === 0 ? (
+                    <div className="text-center py-8">
+                      <div className="text-gray-400 text-4xl mb-2">📋</div>
+                      <p className="text-gray-500">暂无统计数据</p>
+                    </div>
+                  ) : (
+                    emotionStats.map((stat, index) => {
+                      const emotionData = EMOTIONS.find(e => e.name === stat.emotion);
+                      return (
+                        <motion.div
+                          key={stat.emotion}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 * index }}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <span className="text-2xl">{emotionData?.icon || '😊'}</span>
+                            <div>
+                              <h4 className="font-medium text-gray-800">
+                                {emotionData?.name || stat.emotion}
+                              </h4>
+                              <p className="text-sm text-gray-600">
+                                出现频率: {stat.percentage}%
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      
-                      <div className="text-right">
-                        <div className="text-lg font-semibold text-gray-800">
-                          {stat.count} 次
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {stat.percentage}%
-                        </div>
-                      </div>
-                      </motion.div>
-                    );
-                  })}
+                        
+                          <div className="text-right">
+                            <div className="text-lg font-semibold text-gray-800">
+                              {stat.count} 次
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {stat.percentage}%
+                            </div>
+                          </div>
+                        </motion.div>
+                      );
+                    })
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -446,27 +600,34 @@ export default function Trends() {
               </CardHeader>
               <CardContent>
                 <div className="h-80 flex items-center justify-center">
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    {wordCloudData.slice(0, 9).map((word, index) => (
-                      <motion.div
-                        key={word.text}
-                        initial={{ opacity: 0, scale: 0.5 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.1 * index }}
-                        className="p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl"
-                        style={{
-                          fontSize: `${Math.max(12, Math.min(24, word.value * 2))}px`
-                        }}
-                      >
-                        <div className="font-medium text-gray-800">
-                          {word.text}
-                        </div>
-                        <div className="text-xs text-gray-600 mt-1">
-                          {word.value} 次
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
+                  {wordCloudData.length === 0 ? (
+                    <div className="text-center">
+                      <div className="text-gray-400 text-4xl mb-2">☁️</div>
+                      <p className="text-gray-500">暂无关键词数据</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      {wordCloudData.slice(0, 9).map((word, index) => (
+                        <motion.div
+                          key={word.text}
+                          initial={{ opacity: 0, scale: 0.5 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.1 * index }}
+                          className="p-3 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl"
+                          style={{
+                            fontSize: `${Math.max(12, Math.min(24, word.value * 2))}px`
+                          }}
+                        >
+                          <div className="font-medium text-gray-800">
+                            {word.text}
+                          </div>
+                          <div className="text-xs text-gray-600 mt-1">
+                            {word.value} 次
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -551,7 +712,7 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ icon, title, value, subtitle, color }) => {
   return (
-    <Card hover>
+    <Card className="hover:shadow-xl transition-shadow duration-200">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>

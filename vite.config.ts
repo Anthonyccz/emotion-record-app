@@ -17,15 +17,16 @@ export default defineConfig({
         ],
       },
     }),
-    traeBadgePlugin({
-      variant: 'dark',
-      position: 'bottom-right',
-      prodOnly: true,
-      clickable: true,
-      clickUrl: 'https://www.trae.ai/solo?showJoin=1',
-      autoTheme: true,
-      autoThemeTarget: '#root'
-    }), 
+    // 暂时禁用 Trae Badge 插件以解决手机端访问问题
+    // traeBadgePlugin({
+    //   variant: 'dark',
+    //   position: 'bottom-right',
+    //   prodOnly: true,
+    //   clickable: true,
+    //   clickUrl: 'https://www.trae.ai/solo?showJoin=1',
+    //   autoTheme: true,
+    //   autoThemeTarget: '#root'
+    // }), 
     tsconfigPaths()
   ],
 })

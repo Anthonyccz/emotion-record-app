@@ -5,14 +5,12 @@ import { cn } from '@/lib/utils';
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
-  hover?: boolean;
   padding?: 'sm' | 'md' | 'lg';
 }
 
 export const Card: React.FC<CardProps> = ({
   children,
   className,
-  hover = false,
   padding = 'md',
   onClick,
   ...props
@@ -28,7 +26,7 @@ export const Card: React.FC<CardProps> = ({
   if (onClick) {
     return (
       <motion.div
-        whileHover={{ scale: hover ? 1.02 : 1, y: hover ? -2 : 0 }}
+        whileHover={{ scale: 1.02, y: -2 }}
         whileTap={{ scale: 0.98 }}
         className={cn(baseClasses, paddingClasses[padding], 'cursor-pointer', className)}
         onClick={onClick}

@@ -343,7 +343,7 @@ const ListView: React.FC<ListViewProps> = ({ records, onRecordClick, onDeleteRec
             exit={{ opacity: 0, y: -20 }}
             transition={{ delay: index * 0.05 }}
           >
-            <Card hover className="cursor-pointer group">
+            <Card className="cursor-pointer group hover:shadow-xl transition-shadow duration-200">
               <CardContent className="py-4">
                 <div className="flex items-start space-x-4">
                   <div className="text-3xl">{record.emotion.icon}</div>
