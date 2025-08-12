@@ -367,9 +367,7 @@ export default function Trends() {
                           </LineChart>
                         </ResponsiveContainer>
                       )}
-                    </>
-                  )}
-                  
+                      
                       {chartType === 'area' && (
                         <ResponsiveContainer width="100%" height="100%">
                           <AreaChart data={trendData}>
@@ -463,6 +461,8 @@ export default function Trends() {
                           </BarChart>
                         </ResponsiveContainer>
                       )}
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -741,7 +741,7 @@ function generateInsights(emotionStats: any[], avgMood: number, streakDays: numb
     const mostFrequent = emotionStats[0];
     insights.push({
       icon: '📊',
-      text: `你最常体验的情绪是${mostFrequent.emotion.name}，占总记录的${mostFrequent.percentage}%`
+      text: `你最常体验的情绪是${mostFrequent.emotion}，占总记录的${mostFrequent.percentage}%`
     });
   }
   
