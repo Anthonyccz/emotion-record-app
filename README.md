@@ -2,6 +2,8 @@
 
 一个温馨的情绪记录与疗愈应用，帮助用户记录日常情绪，追踪心理健康状态，并提供数据可视化分析。
 
+[![Deploy to GitHub Pages](https://github.com/anthonyccz/emotion-record-app/actions/workflows/deploy.yml/badge.svg)](https://github.com/anthonyccz/emotion-record-app/actions/workflows/deploy.yml)
+
 ## ✨ 功能特色
 
 - 📝 **情绪记录**：支持文字、图片、录音多种记录方式
