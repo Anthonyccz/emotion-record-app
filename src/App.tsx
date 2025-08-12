@@ -6,7 +6,7 @@ import Trends from "@/pages/Trends";
 
 export default function App() {
   return (
-    <Router>
+    <Router basename={import.meta.env.PROD ? "/emotion-record-app" : "/"}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/record" element={<Record />} />
