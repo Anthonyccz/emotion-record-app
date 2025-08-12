@@ -67,7 +67,7 @@ export default function Home() {
       icon: <TrendingUp className="w-6 h-6" />,
       color: 'from-green-200 to-teal-200',
       textColor: 'text-green-700',
-      path: '/analytics'
+      path: '/trends'
     }
   ];
   
