@@ -739,9 +739,10 @@ function generateInsights(emotionStats: any[], avgMood: number, streakDays: numb
   
   if (emotionStats.length > 0) {
     const mostFrequent = emotionStats[0];
+    const emotionData = EMOTIONS.find(e => e.name === mostFrequent.emotion);
     insights.push({
       icon: '📊',
-      text: `你最常体验的情绪是${mostFrequent.emotion}，占总记录的${mostFrequent.percentage}%`
+      text: `你最常体验的情绪是${emotionData?.name || mostFrequent.emotion}，占总记录的${mostFrequent.percentage}%`
     });
   }
   
