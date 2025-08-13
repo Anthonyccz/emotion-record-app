@@ -7,7 +7,7 @@ import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 export default function App() {
   return (
-    <Router>
+    <Router basename="/emotion-record-app">
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 px-4 md:px-0">
         <Routes>
           <Route path="/" element={<Home />} />
