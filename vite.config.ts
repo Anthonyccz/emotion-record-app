@@ -10,7 +10,7 @@ export default defineConfig({
     tsconfigPaths(),
     // traeBadgePlugin()
   ],
-  base: '/',
+  base: '/emotion-record-app/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
