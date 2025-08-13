@@ -1,0 +1,7 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="24" fill="#3b82f6"/>
+  <circle cx="96" cy="80" r="32" fill="white" opacity="0.9"/>
+  <circle cx="96" cy="80" r="24" fill="#3b82f6"/>
+  <path d="M96 104c-8 0-16 4-20 8v16c0 4 4 8 8 8h24c4 0 8-4 8-8v-16c-4-4-12-8-20-8z" fill="white" opacity="0.9"/>
+  <text x="96" y="160" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">情绪记录</text>
+</svg>

@@ -87,8 +87,8 @@ export default function History() {
   
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 p-4">
-        <div className="max-w-6xl mx-auto space-y-6">
+      <div className="min-h-screen">
+        <div className="container mx-auto py-4 md:py-6 space-y-4 md:space-y-6 max-w-6xl">
           <div className="flex items-center justify-between">
             <div className="w-20 h-10 bg-gray-200 rounded animate-pulse" />
             <div className="w-32 h-8 bg-gray-200 rounded animate-pulse" />
@@ -108,8 +108,8 @@ export default function History() {
   }
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen">
+      <div className="container mx-auto py-4 md:py-6 space-y-4 md:space-y-6 max-w-6xl">
         {/* 头部 */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

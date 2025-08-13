@@ -5,28 +5,28 @@ import { traeBadgePlugin } from 'vite-plugin-trae-solo-badge';
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/emotion-record-app/' : '/',
-  build: {
-    sourcemap: 'hidden',
-  },
   plugins: [
-    react({
-      babel: {
-        plugins: [
-          'react-dev-locator',
-        ],
-      },
-    }),
-    // 暂时禁用 Trae Badge 插件以解决手机端访问问题
-    // traeBadgePlugin({
-    //   variant: 'dark',
-    //   position: 'bottom-right',
-    //   prodOnly: true,
-    //   clickable: true,
-    //   clickUrl: 'https://www.trae.ai/solo?showJoin=1',
-    //   autoTheme: true,
-    //   autoThemeTarget: '#root'
-    // }), 
-    tsconfigPaths()
+    react(),
+    tsconfigPaths(),
+    // traeBadgePlugin()
   ],
+  base: '/',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          charts: ['recharts', 'chart.js', 'react-chartjs-2']
+        }
+      }
+    }
+  },
+  server: {
+    port: 3000,
+    open: true
+  }
 })

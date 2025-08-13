@@ -19,7 +19,7 @@ export const EmotionSelector: React.FC<EmotionSelectorProps> = ({
     <div className={cn('space-y-4', className)}>
       <h3 className="text-lg font-semibold text-gray-800 mb-4">今天的心情如何？</h3>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3">
         {EMOTIONS.map((emotion) => {
           const isSelected = selectedEmotion?.id === emotion.id;
           
@@ -42,7 +42,7 @@ export const EmotionSelector: React.FC<EmotionSelectorProps> = ({
               >
                 <div className="flex flex-col items-center space-y-2">
                   <motion.div
-                    className="text-3xl"
+                    className="text-2xl md:text-3xl"
                     animate={isSelected ? {
                       scale: [1, 1.2, 1],
                       rotate: [0, 5, -5, 0]
@@ -53,7 +53,7 @@ export const EmotionSelector: React.FC<EmotionSelectorProps> = ({
                   </motion.div>
                   
                   <span className={cn(
-                    'text-sm font-medium transition-colors',
+                    'text-xs md:text-sm font-medium transition-colors',
                     isSelected ? 'text-purple-700' : 'text-gray-600'
                   )}>
                     {emotion.name}

@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useEmotionStore } from '@/store/useEmotionStore';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { BreathingAnimation } from '@/components/ui/Loading';
+import { ResetDataDialog } from '@/components/ResetDataDialog';
 import { getGreeting, getMotivationalQuote, formatDateDisplay } from '@/utils';
 import { format } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
@@ -16,12 +17,16 @@ import {
   Moon, 
   Cloud,
   Heart,
-  Sparkles
+  Sparkles,
+  Settings,
+  RotateCcw
 } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { records, getRecordByDate, initializeMockData } = useEmotionStore();
+  const { records, getRecordByDate, initializeMockData, resetAllData } = useEmotionStore();
+  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   
   useEffect(() => {
     initializeMockData();
@@ -31,6 +36,14 @@ export default function Home() {
   const todayRecord = getRecordByDate(today);
   const greeting = getGreeting();
   const quote = getMotivationalQuote();
+  
+  const handleResetData = () => {
+    resetAllData();
+    setShowSuccessMessage(true);
+    setTimeout(() => {
+      setShowSuccessMessage(false);
+    }, 3000);
+  };
   
   // 获取天气图标（模拟）
   const getWeatherIcon = () => {
@@ -72,8 +85,8 @@ export default function Home() {
   ];
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 p-4">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen">
+      <div className="container mx-auto py-4 md:py-8 space-y-4 md:space-y-8">
         {/* 欢迎区域 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -266,6 +279,65 @@ export default function Home() {
             </Card>
           </motion.div>
         )}
+        
+        {/* 设置区域 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="mt-8"
+        >
+          <Card className="bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-gray-200 rounded-full">
+                    <Settings className="w-5 h-5 text-gray-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">应用设置</h3>
+                    <p className="text-sm text-gray-600">管理您的数据和偏好设置</p>
+                  </div>
+                </div>
+                
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowResetDialog(true)}
+                  className="flex items-center space-x-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>重置数据</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+        
+        {/* 成功提示 */}
+        {showSuccessMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50"
+          >
+            <Card className="bg-green-500 text-white border-green-600">
+              <CardContent className="px-6 py-3">
+                <div className="flex items-center space-x-2">
+                  <Sparkles className="w-5 h-5" />
+                  <span className="font-medium">数据重置成功！应用已恢复到初始状态</span>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+        
+        {/* 重置确认对话框 */}
+        <ResetDataDialog
+          isOpen={showResetDialog}
+          onClose={() => setShowResetDialog(false)}
+          onConfirm={handleResetData}
+        />
       </div>
     </div>
   );

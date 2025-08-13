@@ -18,6 +18,7 @@ interface EmotionStore {
   setSelectedDate: (date: string) => void;
   setCurrentRecord: (record?: EmotionRecord) => void;
   initializeMockData: () => void;
+  resetAllData: () => void;
 }
 
 // 生成模拟数据
@@ -155,5 +156,18 @@ export const useEmotionStore = create<EmotionStore>((set, get) => ({
     const mockRecords = generateMockData();
     set({ records: mockRecords });
     localStorage.setItem('emotion_records', JSON.stringify(mockRecords));
+  },
+  
+  resetAllData: () => {
+    // 清空所有数据
+    set({ 
+      records: [],
+      currentRecord: undefined,
+      selectedDate: format(new Date(), 'yyyy-MM-dd'),
+      error: undefined
+    });
+    
+    // 清除localStorage中的数据
+    localStorage.removeItem('emotion_records');
   }
 }));
